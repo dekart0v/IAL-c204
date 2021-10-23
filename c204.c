@@ -88,6 +88,66 @@ void untilLeftPar( Stack *stack, char *postfixExpression, unsigned *postfixExpre
  */
 void doOperation( Stack *stack, char c, char *postfixExpression, unsigned *postfixExpressionLength ) {
     // обрабатывает оператор который хранится в char c после считывания знака на input-ном массиве знаков
+    char *top = malloc(sizeof(char));
+  if(Stack_IsEmpty(stack) == 0)
+    Stack_Top(stack, top);
+
+  if (c >= 65 || (c >= 48 && c <= 57)) {
+    postfixExpression[*postfixExpressionLength] = c;
+    postfixExpressionLength[0]++;
+  }
+  else{
+    switch (c){
+      case '+':
+      case '-':
+        while (1) {
+          if(Stack_IsEmpty(stack) || (*top != '*' && *top != '/' && *top != '+' && *top != '-' && *top != ')' && *top != '(') || *top == '('){
+            Stack_Push(stack, c);
+            break;
+          }
+          else if (*top == '*' || *top == '/' || *top == '+' || *top == '-'){
+            postfixExpression[*postfixExpressionLength] = *top;
+            postfixExpressionLength[0]++;
+            Stack_Pop(stack);
+          }
+          if (Stack_IsEmpty(stack) == 0) Stack_Top(stack, top);
+        }
+        break;
+      case '/':
+      case '*':
+        while (1){
+          if((Stack_IsEmpty(stack)) || *top == '(' || *top == '+' || *top == '-'){
+            Stack_Push(stack, c);
+            break;
+          }
+          else if(*top == '*' || *top == '/'){
+            postfixExpression[*postfixExpressionLength] = *top;
+            postfixExpressionLength[0]++;
+            Stack_Pop(stack);
+          }
+          if (Stack_IsEmpty(stack) == 0) Stack_Top(stack, top);
+        }
+        break;
+      case '(':
+        Stack_Push(stack, c);
+        break;
+      case ')':
+        untilLeftPar(stack, postfixExpression, postfixExpressionLength);
+        break;
+      case '=':
+        while (Stack_IsEmpty(stack) == 0) {
+          postfixExpression[*postfixExpressionLength] = *top;
+          postfixExpressionLength[0]++;
+          Stack_Pop(stack);
+          if (Stack_IsEmpty(stack) != 0) break;
+          Stack_Top(stack, top);
+        }
+        postfixExpression[*postfixExpressionLength] = c;
+        postfixExpressionLength[0]++;
+        postfixExpression[*postfixExpressionLength] = '\0';
+        break;
+    }
+  }
 
 }
 
@@ -140,9 +200,18 @@ void doOperation( Stack *stack, char c, char *postfixExpression, unsigned *postf
  * @returns Znakový řetězec obsahující výsledný postfixový výraz
  */
 char *infix2postfix( const char *infixExpression ) {
+    char *postfixExpression = malloc(sizeof(char) * MAX_LEN);
 
+    Stack *stack = malloc(sizeof(Stack));
+    unsigned* postfixExpressionLength = malloc(sizeof(unsigned) * 1);
+    *postfixExpressionLength = 0;
+    Stack_Init(stack);
+
+    for (int i = 0; '\0' != infixExpression[i]; i++) {
+        doOperation(stack, infixExpression[i], postfixExpression, postfixExpressionLength);
+    }
     //solved = FALSE; /* V případě řešení smažte tento řádek! */
-    return NULL; /* V případě řešení můžete smazat tento řádek. */
+    return postfixExpression; /* V případě řešení můžete smazat tento řádek. */
 }
 
 /* Konec c204.c */
