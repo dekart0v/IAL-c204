@@ -87,25 +87,25 @@ void untilLeftPar( Stack *stack, char *postfixExpression, unsigned *postfixExpre
  * @param postfixExpressionLength Ukazatel na aktuální délku výsledného postfixového výrazu
  */
 void doOperation( Stack *stack, char c, char *postfixExpression, unsigned *postfixExpressionLength ) {
-    // обрабатывает оператор который хранится в char c после считывания знака на input-ном массиве знаков
-    char *top = malloc(sizeof(char));
-  if(Stack_IsEmpty(stack) == 0)
+  // обрабатывает оператор который хранится в char c после считывания знака на input-ном массиве знаков
+  char *top = malloc(sizeof(char));
+  if(Stack_IsEmpty(stack) == 0) {
     Stack_Top(stack, top);
-
+  }
   if (c >= 65 || (c >= 48 && c <= 57)) {
     postfixExpression[*postfixExpressionLength] = c;
     postfixExpressionLength[0]++;
   }
-  else{
-    switch (c){
+  else {
+    switch (c) {
       case '+':
       case '-':
         while (1) {
-          if(Stack_IsEmpty(stack) || (*top != '*' && *top != '/' && *top != '+' && *top != '-' && *top != ')' && *top != '(') || *top == '('){
+          if(Stack_IsEmpty(stack) || (*top != '+' && *top != '-' && *top != '*' && *top != '/' && *top != ')' && *top != '(') || *top == '(') {
             Stack_Push(stack, c);
             break;
           }
-          else if (*top == '*' || *top == '/' || *top == '+' || *top == '-'){
+          else {
             postfixExpression[*postfixExpressionLength] = *top;
             postfixExpressionLength[0]++;
             Stack_Pop(stack);
@@ -115,12 +115,12 @@ void doOperation( Stack *stack, char c, char *postfixExpression, unsigned *postf
         break;
       case '/':
       case '*':
-        while (1){
-          if((Stack_IsEmpty(stack)) || *top == '(' || *top == '+' || *top == '-'){
+        while (1) {
+          if((Stack_IsEmpty(stack)) || *top == '(' || *top == '+' || *top == '-') {
             Stack_Push(stack, c);
             break;
           }
-          else if(*top == '*' || *top == '/'){
+          else {
             postfixExpression[*postfixExpressionLength] = *top;
             postfixExpressionLength[0]++;
             Stack_Pop(stack);
@@ -207,7 +207,7 @@ char *infix2postfix( const char *infixExpression ) {
     *postfixExpressionLength = 0;
     Stack_Init(stack);
 
-    for (int i = 0; '\0' != infixExpression[i]; i++) {
+    for (int i = 0; infixExpression[i] != '\0'; i++) {
         doOperation(stack, infixExpression[i], postfixExpression, postfixExpressionLength);
     }
     //solved = FALSE; /* V případě řešení smažte tento řádek! */
